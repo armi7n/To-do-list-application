@@ -1,64 +1,116 @@
+
 'use strict';
-// اینها ساده سازی هستن برای اینکه هر بار انتخاب نکنیم المنت یا کلاسی رو و با استفادهاز متغیر داده شده این کار با با راه متد انحام بدیم
+
 const addbtn = document.querySelector(".addbtn"); /// دکمه اضافه
 const deletebtn = document.querySelector(".deletebtn"); // دکمه حذف
 const showbtn = document.querySelector(".showbtn");  // دکمه نمایش 
-const input = document.querySelector(".inputForClass"); // دکمه اینپوت یا همون ورودی 
-// و در آخر برای لیستهم باید سلکشنی در نظر گرفت
+const editbtn = document.querySelector(".editbtn");  // دکمه ادیت
+const input = document.querySelector(".inputForClass"); // ورودی 
 const list = document.querySelector(".to_do_list");
-//  ------------------- ADD -------------------
-addbtn.addEventListener('click', function (enteranyword) {
 
-    enteranyword.preventDefault();
+// -------------------  save in localStorage -------------------
+function saveToLocalStorage() {
+    const items = [];
+    document.querySelectorAll(".to_do_list li").forEach(li => {
+        const checkbox = li.querySelector("input[type='checkbox']");
+        items.push({
+            text: li.querySelector("span").textContent,
+            checked: checkbox.checked
+        });
+    });
+    localStorage.setItem("todos", JSON.stringify(items));
+}
+ // ------------------  load local storage  -------------------
 
-    // این کار باعث میشه موقع زدن روی دکمه اضافه کردن رفرش رخ ندهد
-    const vorodi = input.value.trim();
-    if (vorodi == '') {
-        // console.log('لطفا یک مقدار وارد کنید');
-        alert("لطفا یک مقدار وارد کنید ")
-        return;
-    } 
-    //  li  رو تعریف میکنیم تا نماینده سلکتور ما باشه
-    const li = document.createElement('li');
-    // هر بار که روی دکمه اضافه کردن کلیک کنیم باید مقداری که کاربر میده رو ذخیره کنه که این کار به شکل زیر انجام میشهّ
-    li.textContent = vorodi;
+function loadFromLocalStorage() {
+    const savedItems = JSON.parse(localStorage.getItem("todos")) || [];
+    savedItems.forEach(item => {
+        createListItem(item.text, item.checked);
+    });
+}
+
+// ------------------- ساخت li -------------------
+function createListItem(text, checked = false) {
+    const li = document.createElement("li");
+
+    // چک‌باکس
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = checked;
+
+    // متن
+    const span = document.createElement("span");
+    span.textContent = text;
+
+    li.appendChild(checkbox);
+    li.appendChild(span);
+
     list.appendChild(li);
-    
-    // فرایند دادن ورودی 
-    
-    input.value = ""; // باعث خالی کردن میشه بعد پایان عملیات
+}
+
+// ------------------- ADD -------------------
+addbtn.addEventListener('click', function (e) {
+    e.preventDefault();
+
+    const vorodi = input.value.trim();
+    if (vorodi === '') {
+        alert("لطفا یک مقدار وارد کنید ");
+        return;
+    }
+
+    createListItem(vorodi);
+    saveToLocalStorage();
+    input.value = "";
 });
 
-
-//  ------------------- DELETE -------------------
-
-deletebtn.addEventListener('click', function (enteranyword) {
-    enteranyword.preventDefault();
-    //  این کار کل لیست رو پاک میکنه که ما همین رو میخوایم
+// ------------------- DELETE ALL -------------------
+deletebtn.addEventListener('click', function (e) {
+    e.preventDefault();
     list.innerHTML = "";
-})
+    saveToLocalStorage();
+});
 
+// ------------------- حذف تکی با کلیک روی آیتم -------------------
+list.addEventListener("click", function (e) {
+    if (e.target.tagName === "SPAN") {
+        e.target.parentElement.remove();
+        saveToLocalStorage();
+    }
+});
 
-//  ------------------- SHOWBUTTON -------------------
-// کل این دکمه هم کار نمایش رو بر عهده دارد
-showbtn.addEventListener('click', function (enteranyword) {
-    enteranyword.preventDefault();
-    if (list.style.display == 'none') {
+// ------------------- SHOWBUTTON -------------------
+showbtn.addEventListener('click', function (e) {
+    e.preventDefault();
+    if (list.style.display === 'none') {
         list.style.display = 'block';
-    } else if
-        (list.style.display == 'block') {
+    } else {
         list.style.display = 'none';
     }
-}
-)
+});
 
+// ------------------- EDIT -------------------
+editbtn.addEventListener("click", function (e) {
+    e.preventDefault();
 
+    const checkedItems = list.querySelectorAll("li input[type='checkbox']:checked");
 
+    if (checkedItems.length === 0) {
+        alert("هیچ آیتمی انتخاب نشده است!");
+        return;
+    }
 
+    checkedItems.forEach(cb => {
+        const span = cb.nextElementSibling;
+        const newText = prompt("متن جدید را وارد کنید:", span.textContent);
+        if (newText && newText.trim() !== "") {
+            span.textContent = newText.trim();
+        }
+    });
 
+    saveToLocalStorage();
+});
 
-
-
+loadFromLocalStorage();
 
 
 
