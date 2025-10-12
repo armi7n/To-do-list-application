@@ -1,6 +1,6 @@
 h1 {
     font-family: 'Nunito', sans-serif;
-        
+
 }
 
 body {
@@ -43,7 +43,7 @@ body {
     margin: 0 auto;
     /* margin-top: 100px; */
     padding: 20px;
-    box-shadow: 0 5px 120px ;
+    box-shadow: 0 5px 120px;
 }
 
 form {
@@ -90,5 +90,9 @@ ul {
 }
 
 .showbtn {
+    display: none;
+}
+
+.editbtn {
     display: none;
 }
